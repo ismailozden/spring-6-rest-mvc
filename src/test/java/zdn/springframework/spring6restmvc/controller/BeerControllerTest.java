@@ -1,5 +1,7 @@
 package zdn.springframework.spring6restmvc.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,6 +26,9 @@ class BeerControllerTest {
 
     @MockBean
     BeerService beerService;
+    
+    @Autowired
+    ObjectMapper objectMapper;
 
     BeerServiceImpl beerServiceImpl = new BeerServiceImpl();
     @Test
@@ -51,4 +56,9 @@ class BeerControllerTest {
                 .andExpect(jsonPath("$.length()", is(3)));
     }
 
+    @Test
+    void testCreateNewBear() throws JsonProcessingException {
+    Beer beer = beerServiceImpl.listBeers().get(0);
+        System.out.println(objectMapper.writeValueAsString(beer));
+    }
 }
