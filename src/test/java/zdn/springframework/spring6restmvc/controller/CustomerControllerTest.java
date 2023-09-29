@@ -14,6 +14,8 @@ import zdn.springframework.spring6restmvc.model.Customer;
 import zdn.springframework.spring6restmvc.services.CustomerService;
 import zdn.springframework.spring6restmvc.services.CustomerServiceImpl;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
@@ -35,6 +37,10 @@ class CustomerControllerTest {
     @Autowired
     ObjectMapper objectMapper;
     CustomerServiceImpl customerServiceImpl;
+
+    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+    ArgumentCaptor<Customer> customerArgumentCaptor = ArgumentCaptor.forClass(Customer.class);
+
 
     @BeforeEach
     void setUp() {
@@ -103,10 +109,29 @@ class CustomerControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
         verify(customerService).deleteCustomerById(uuidArgumentCaptor.capture());
 
         Assertions.assertEquals(customer.getId(),uuidArgumentCaptor.getValue());
+    }
+
+    @Test
+    void testPatchCustomer() throws Exception {
+        Customer customer = customerServiceImpl.listCustomers().get(0);
+        Map<String, Object> customerMap = new HashMap<>();
+        customerMap.put("customerName", "New name");
+
+        mockMvc.perform(patch("/api/v1/customer/" + customer.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(customerMap)))
+                .andExpect(status().isNoContent());
+
+        verify(customerService).patchCustomerById(uuidArgumentCaptor.capture(),customerArgumentCaptor.capture());
+
+        Assertions.assertEquals(customer.getId(),uuidArgumentCaptor.getValue());
+        Assertions.assertEquals(customerMap.get("customerName"),customerArgumentCaptor.getValue().getCustomerName());
+
+        // TODO: 9/29/2023 Investigate .content(objectMapper.writeValueAsString(customerMap)))
     }
 
 }

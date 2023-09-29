@@ -1,5 +1,6 @@
 package zdn.springframework.spring6restmvc.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,8 @@ import zdn.springframework.spring6restmvc.model.Beer;
 import zdn.springframework.spring6restmvc.services.BeerService;
 import zdn.springframework.spring6restmvc.services.BeerServiceImpl;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
@@ -37,6 +40,8 @@ class BeerControllerTest {
     ObjectMapper objectMapper;
 
     BeerServiceImpl beerServiceImpl;
+    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+    ArgumentCaptor<Beer> beerArgumentCaptor = ArgumentCaptor.forClass(Beer.class);
 
     @BeforeEach
     void setUp() {
@@ -107,10 +112,37 @@ class BeerControllerTest {
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
-        ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
         verify(beerService).deleteBeerById(uuidArgumentCaptor.capture());
 
         Assertions.assertEquals(beer.getId(),uuidArgumentCaptor.getValue());
     }
 
+    @Test
+    void testPatchBeer() throws Exception {
+        Beer beer = beerServiceImpl.listBeers().get(0);
+        Map<String, Object> beerMap = new HashMap<>();
+        beerMap.put("beerName", "New name");
+
+        mockMvc.perform(patch("/api/v1/beer/" + beer.getId())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(beerMap)))
+                .andExpect(status().isNoContent());
+
+        verify(beerService).patchBeerById(uuidArgumentCaptor.capture(),beerArgumentCaptor.capture());
+
+        Assertions.assertEquals(beer.getId(),uuidArgumentCaptor.getValue());
+        Assertions.assertEquals(beerMap.get("beerName"),beerArgumentCaptor.getValue().getBeerName());
+
+        // TODO: 9/29/2023 Investigate .content(objectMapper.writeValueAsString(beerMap)))
+        // Assertions.assertEquals("New name", beerServiceImpl.getBeerByID(beer.getId()).getBeerName());
+        //beerServiceImpl.listBeers().get(1).setBeerName("HEBELE");
+        //beerServiceImpl.patchBeerById(beer.getId(),beerServiceImpl.listBeers().get(1));
+        //System.out.println(beerServiceImpl.listBeers().get(0));
+        //System.out.println(beerServiceImpl.listBeers().get(1));
+        //System.out.println(beerServiceImpl.listBeers().get(2));
+        //Assertions.assertEquals(beerServiceImpl.getBeerByID(beer.getId()).getBeerName(),beerMap.get("beerName"));
+
+
+    }
 }
