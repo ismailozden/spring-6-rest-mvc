@@ -137,4 +137,13 @@ class CustomerControllerTest {
         // TODO: 9/29/2023 Investigate .content(objectMapper.writeValueAsString(customerMap)))
     }
 
+    @Test
+    void getCustomerByIdNotFound() throws Exception {
+        given(customerService.getCustomerByID(any(UUID.class))).willThrow(NotFoundException.class);
+
+        mockMvc.perform(get(CUSTOMER_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+
+    }
+
 }
