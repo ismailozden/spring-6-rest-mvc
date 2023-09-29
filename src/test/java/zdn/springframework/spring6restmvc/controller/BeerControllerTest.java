@@ -1,9 +1,10 @@
 package zdn.springframework.spring6restmvc.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -97,4 +98,19 @@ class BeerControllerTest {
 
         verify(beerService).updateBeerById(any(UUID.class),any(Beer.class));
     }
+
+    @Test
+    void testDeleteBeer() throws Exception {
+    Beer beer = beerServiceImpl.listBeers().get(0);
+
+    mockMvc.perform(delete("/api/v1/beer/" + beer.getId())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+        verify(beerService).deleteBeerById(uuidArgumentCaptor.capture());
+
+        Assertions.assertEquals(beer.getId(),uuidArgumentCaptor.getValue());
+    }
+
 }

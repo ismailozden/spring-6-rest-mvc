@@ -1,8 +1,10 @@
 package zdn.springframework.spring6restmvc.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -92,4 +94,19 @@ class CustomerControllerTest {
 
         verify(customerService).updateCustomerById(any(UUID.class),any(Customer.class));
     }
+
+    @Test
+    void testDeleteCustomer() throws Exception {
+        Customer customer = customerServiceImpl.listCustomers().get(0);
+
+        mockMvc.perform(delete("/api/v1/customer/" + customer.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+        verify(customerService).deleteCustomerById(uuidArgumentCaptor.capture());
+
+        Assertions.assertEquals(customer.getId(),uuidArgumentCaptor.getValue());
+    }
+
 }
