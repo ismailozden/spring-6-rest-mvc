@@ -42,7 +42,7 @@ public class BeerController {
 
         log.debug("Get Beer by Id - in controller.");
 
-        return beerService.getBeerByID(beerId);
+        return beerService.getBeerByID(beerId).orElseThrow(NotFoundException::new);
     }
 
     @PutMapping(BEER_PATH_ID)
