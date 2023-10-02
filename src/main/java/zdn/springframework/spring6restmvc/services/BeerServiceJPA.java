@@ -10,6 +10,7 @@ import zdn.springframework.spring6restmvc.repositories.BeerRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Primary
@@ -20,12 +21,16 @@ public class BeerServiceJPA implements BeerService {
     private final BeerMapper beerMapper;
     @Override
     public List<BeerDTO> listBeers() {
-        return null;
+        return beerRepository.findAll()
+                .stream()
+                .map(beerMapper::beertoBeerDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Optional<BeerDTO> getBeerByID(UUID id) {
-        return Optional.empty();
+        return Optional.ofNullable(beerMapper.beertoBeerDto(beerRepository.findById(id)
+                .orElse(null)));
     }
 
     @Override
