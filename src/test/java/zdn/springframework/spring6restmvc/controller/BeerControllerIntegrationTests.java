@@ -99,7 +99,12 @@ Assertions.assertEquals(dtos.size(),0);
         } else {
         Assertions.fail("There is no beer with this Id");
         }
+    }
 
-
+    @Test
+    void testUpdateNotFound() {
+        Assertions.assertThrows(NotFoundException.class,()->{
+            beerController.updateById(UUID.randomUUID(),BeerDTO.builder().build());
+        });
     }
 }
