@@ -1,6 +1,6 @@
 package zdn.springframework.spring6restmvc.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
-@AllArgsConstructor
 public class CustomerController {
 
     private static final String CUSTOMER_PATH = "/api/v1/customer";
