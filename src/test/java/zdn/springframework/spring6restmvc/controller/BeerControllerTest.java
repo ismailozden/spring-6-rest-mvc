@@ -1,6 +1,5 @@
 package zdn.springframework.spring6restmvc.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -164,7 +163,7 @@ class BeerControllerTest {
     }
 
     @Test
-    void testCreateBeerNullBeerName() throws Exception {
+    void testCreateBeerNullBeerDto() throws Exception {
         BeerDTO beerDTO = BeerDTO.builder().build();
 
         given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers().get(1));
@@ -174,8 +173,26 @@ class BeerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDTO)))
                 .andExpect(status().isBadRequest())
-               .andExpect(jsonPath("$.length()", is(2))).andReturn();
+               .andExpect(jsonPath("$.length()", is(6))).andReturn();
 
         System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    void testUpdateBeerNullBeerDto() throws Exception {
+        BeerDTO beerDTO = beerServiceImpl.listBeers().get(0);
+        BeerDTO beerNewDTO = BeerDTO.builder().build();
+
+        given(beerService.updateBeerById(any(), any())).willReturn(Optional.of(beerDTO));
+
+        MvcResult mvcResult = mockMvc.perform(put(BEER_PATH_ID, beerDTO.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beerNewDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(6))).andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+
     }
 }

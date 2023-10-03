@@ -5,8 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import zdn.springframework.spring6restmvc.entities.Beer;
+import zdn.springframework.spring6restmvc.model.BeerStyle;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.math.BigDecimal;
 
 @DataJpaTest
 class BeerRepositoryTest {
@@ -19,7 +20,12 @@ class BeerRepositoryTest {
 
         Beer savedBeer = beerRepository.save(Beer.builder()
                 .beerName("New Beer")
+                        .beerStyle(BeerStyle.GOSE)
+                        .upc("435636")
+                        .price(new BigDecimal("12.99"))
                 .build());
+
+        beerRepository.flush();
 
         Assertions.assertNotNull(savedBeer);
         Assertions.assertNotNull(savedBeer.getId());
