@@ -1,5 +1,6 @@
 package zdn.springframework.spring6restmvc.repositories;
 
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,23 @@ class BeerRepositoryTest {
 
         Assertions.assertNotNull(savedBeer);
         Assertions.assertNotNull(savedBeer.getId());
+
+    }
+
+    @Test
+    void testSaveBeerConstrainViolation() {
+
+        Assertions.assertThrows(ConstraintViolationException.class, () -> {
+        beerRepository.save(Beer.builder()
+                .beerName("fdlsjfaiotizuiouijfjdsfoijdsafsdagiouioutiosdfjiosdjfjasdiofjjasoijdfioja")
+                .beerStyle(BeerStyle.GOSE)
+                .upc("435636")
+                .price(new BigDecimal("12.99"))
+                .build());
+
+        beerRepository.flush();
+        });
+
 
     }
 }

@@ -2,6 +2,7 @@ package zdn.springframework.spring6restmvc.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class BeerDTO {
     private Integer version;
     @NotNull
     @NotBlank
+    @Size(max = 50)
     private String beerName;
     @NotNull
     private BeerStyle beerStyle;
