@@ -23,6 +23,7 @@ public class BeerDTO {
     private BeerStyle beerStyle;
     @NotNull
     @NotBlank
+    @Size(max = 255)
     private String upc;
     private Integer quantityOnHand;
     @NotNull

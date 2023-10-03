@@ -1,19 +1,31 @@
 package zdn.springframework.spring6restmvc.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import zdn.springframework.spring6restmvc.entities.Beer;
 import zdn.springframework.spring6restmvc.mappers.BeerMapper;
 import zdn.springframework.spring6restmvc.model.BeerDTO;
 import zdn.springframework.spring6restmvc.repositories.BeerRepository;
 
 import java.util.*;
+
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 class BeerControllerIntegrationTests {
@@ -24,6 +36,18 @@ class BeerControllerIntegrationTests {
     BeerRepository beerRepository;
     @Autowired
     BeerMapper beerMapper;
+    @Autowired
+    WebApplicationContext wac;
+    @Autowired
+    ObjectMapper objectMapper;
+    private static final String BEER_PATH = "/api/v1/beer";
+    private static final String BEER_PATH_ID = BEER_PATH+"/{beerId}";
+    MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
 
     @Test
     void testListBeers() {
@@ -149,4 +173,21 @@ Assertions.assertEquals(dtos.size(),0);
     void testPatchNotFound() {
         Assertions.assertThrows(NotFoundException.class,()-> beerController.patchById(UUID.randomUUID(),BeerDTO.builder().build()));
     }
+
+    @Test
+    void testPatchBeerBadName() throws Exception {
+        Beer beer = beerRepository.findAll().get(0);
+        Map<String, Object> beerMap = new HashMap<>();
+        beerMap.put("beerName", "876bzfbfgtuttuzit6766765675v567567cc67654647c47c464c64c45");
+
+       MvcResult mvcResult = mockMvc.perform(patch(BEER_PATH_ID, beer.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beerMap)))
+                .andExpect(status().isBadRequest())
+               .andExpect(jsonPath("$.length()", is(1))).andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
 }
