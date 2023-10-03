@@ -14,7 +14,6 @@ import zdn.springframework.spring6restmvc.model.BeerDTO;
 import zdn.springframework.spring6restmvc.repositories.BeerRepository;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -78,6 +77,8 @@ Assertions.assertEquals(dtos.size(),0);
         Assertions.assertNotNull(beer);
     }
 
+    @Rollback
+    @Transactional
     @Test
     void updateExistingBeer() {
 
@@ -105,6 +106,25 @@ Assertions.assertEquals(dtos.size(),0);
     void testUpdateNotFound() {
         Assertions.assertThrows(NotFoundException.class,()->{
             beerController.updateById(UUID.randomUUID(),BeerDTO.builder().build());
+        });
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void deleteByIdFound() {
+        Beer beer = beerRepository.findAll().get(0);
+
+        ResponseEntity<Void> responseEntity = beerController.deleteById(beer.getId());
+
+        Assertions.assertEquals(responseEntity.getStatusCode(),HttpStatusCode.valueOf(204));
+        Assertions.assertTrue(beerRepository.findById(beer.getId()).isEmpty());
+    }
+
+    @Test
+    void testDeleteNotFound() {
+        Assertions.assertThrows(NotFoundException.class,()->{
+            beerController.deleteById(UUID.randomUUID());
         });
     }
 }
