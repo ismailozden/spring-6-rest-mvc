@@ -53,9 +53,7 @@ class CustomerControllerIntegrationTests {
 
     @Test
     void getCustomerByIdNotFound() {
-        Assertions.assertThrows(NotFoundException.class,()->{
-            customerController.getCustomerById(UUID.randomUUID());
-        });
+        Assertions.assertThrows(NotFoundException.class,()-> customerController.getCustomerById(UUID.randomUUID()));
     }
 
     @Rollback
@@ -111,9 +109,7 @@ class CustomerControllerIntegrationTests {
 
     @Test
     void testUpdateNotFound() {
-        Assertions.assertThrows(NotFoundException.class,()->{
-            customerController.updateById(UUID.randomUUID(),CustomerDTO.builder().build());
-        });
+        Assertions.assertThrows(NotFoundException.class,()-> customerController.updateById(UUID.randomUUID(),CustomerDTO.builder().build()));
     }
 
     @Rollback
@@ -130,8 +126,36 @@ class CustomerControllerIntegrationTests {
 
     @Test
     void testDeleteNotFound() {
-        Assertions.assertThrows(NotFoundException.class,()->{
-            customerController.deleteById(UUID.randomUUID());
-        });
+        Assertions.assertThrows(NotFoundException.class,()-> customerController.deleteById(UUID.randomUUID()));
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void testPatch() {
+        Customer customer = customerRepository.findAll().get(0);
+
+        CustomerDTO customerDTO = customerMapper.customerToCustomerDto(customer);
+        customerDTO.setId(null);
+        customerDTO.setVersion(null);
+        final String customerName = "UPDATED_BEER_NAME";
+        customerDTO.setCustomerName(customerName);
+
+        ResponseEntity<Void> responseEntity = customerController.patchById(customer.getId(), customerDTO);
+
+        Assertions.assertEquals(responseEntity.getStatusCode(),HttpStatusCode.valueOf(204));
+
+        Optional<Customer> updatedCustomer = customerRepository.findById(customer.getId());
+
+        if (updatedCustomer.isPresent()) {
+            Assertions.assertEquals(updatedCustomer.get().getCustomerName(),customerName);
+        } else {
+            Assertions.fail("There is no customer with this Id");
+        }
+    }
+
+    @Test
+    void testPatchNotFound() {
+        Assertions.assertThrows(NotFoundException.class,()-> customerController.patchById(UUID.randomUUID(),CustomerDTO.builder().build()));
     }
 }

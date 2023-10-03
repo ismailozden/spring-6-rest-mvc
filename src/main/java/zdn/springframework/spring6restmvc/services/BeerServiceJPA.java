@@ -3,6 +3,7 @@ package zdn.springframework.spring6restmvc.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import zdn.springframework.spring6restmvc.mappers.BeerMapper;
 import zdn.springframework.spring6restmvc.model.BeerDTO;
 import zdn.springframework.spring6restmvc.repositories.BeerRepository;
@@ -50,9 +51,7 @@ public class BeerServiceJPA implements BeerService {
             foundBeer.setPrice(beer.getPrice());
             atomicReference.set(Optional.of(beerMapper
                     .beertoBeerDto(beerRepository.save(foundBeer))));
-        }, ()->{
-            atomicReference.set(Optional.empty());
-        });
+        }, ()-> atomicReference.set(Optional.empty()));
         return atomicReference.get();
     }
 
@@ -66,7 +65,28 @@ public class BeerServiceJPA implements BeerService {
     }
 
     @Override
-    public void patchBeerById(UUID beerId, BeerDTO beer) {
+    public Optional<BeerDTO> patchBeerById(UUID beerId, BeerDTO beer) {
+        AtomicReference<Optional<BeerDTO>> atomicReference = new AtomicReference<>();
 
+        beerRepository.findById(beerId).ifPresentOrElse(foundBeer ->{
+            if(StringUtils.hasText(beer.getBeerName())){
+                foundBeer.setBeerName(beer.getBeerName());
+            }
+            if(beer.getBeerStyle() != null){
+                foundBeer.setBeerStyle(beer.getBeerStyle());
+            }
+            if(beer.getPrice() != null){
+                foundBeer.setPrice(beer.getPrice());
+            }
+            if(beer.getQuantityOnHand() != null){
+                foundBeer.setQuantityOnHand(beer.getQuantityOnHand());
+            }
+            if(StringUtils.hasText(beer.getUpc())){
+                foundBeer.setUpc(beer.getUpc());
+            }
+            atomicReference.set(Optional.of(beerMapper
+                    .beertoBeerDto(beerRepository.save(foundBeer))));
+        }, ()-> atomicReference.set(Optional.empty()));
+        return atomicReference.get();
     }
 }

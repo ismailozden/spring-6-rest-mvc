@@ -13,9 +13,7 @@ import zdn.springframework.spring6restmvc.mappers.BeerMapper;
 import zdn.springframework.spring6restmvc.model.BeerDTO;
 import zdn.springframework.spring6restmvc.repositories.BeerRepository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @SpringBootTest
 class BeerControllerIntegrationTests {
@@ -51,9 +49,7 @@ Assertions.assertEquals(dtos.size(),0);
 
     @Test
     void testBeerIdNotFound() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
-            beerController.getBeerById(UUID.randomUUID());
-        });
+        Assertions.assertThrows(NotFoundException.class, () -> beerController.getBeerById(UUID.randomUUID()));
     }
 
     @Rollback
@@ -104,9 +100,7 @@ Assertions.assertEquals(dtos.size(),0);
 
     @Test
     void testUpdateNotFound() {
-        Assertions.assertThrows(NotFoundException.class,()->{
-            beerController.updateById(UUID.randomUUID(),BeerDTO.builder().build());
-        });
+        Assertions.assertThrows(NotFoundException.class,()-> beerController.updateById(UUID.randomUUID(),BeerDTO.builder().build()));
     }
 
     @Rollback
@@ -123,8 +117,36 @@ Assertions.assertEquals(dtos.size(),0);
 
     @Test
     void testDeleteNotFound() {
-        Assertions.assertThrows(NotFoundException.class,()->{
-            beerController.deleteById(UUID.randomUUID());
-        });
+        Assertions.assertThrows(NotFoundException.class,()-> beerController.deleteById(UUID.randomUUID()));
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void testPatch() {
+        Beer beer = beerRepository.findAll().get(0);
+
+        BeerDTO beerDTO = beerMapper.beertoBeerDto(beer);
+        beerDTO.setId(null);
+        beerDTO.setVersion(null);
+        final String beerName = "UPDATED_BEER_NAME";
+        beerDTO.setBeerName(beerName);
+
+        ResponseEntity<Void> responseEntity = beerController.patchById(beer.getId(), beerDTO);
+
+        Assertions.assertEquals(responseEntity.getStatusCode(),HttpStatusCode.valueOf(204));
+
+        Optional<Beer> updatedBeer = beerRepository.findById(beer.getId());
+
+        if (updatedBeer.isPresent()) {
+            Assertions.assertEquals(updatedBeer.get().getBeerName(),beerName);
+        } else {
+            Assertions.fail("There is no beer with this Id");
+        }
+    }
+
+    @Test
+    void testPatchNotFound() {
+        Assertions.assertThrows(NotFoundException.class,()-> beerController.patchById(UUID.randomUUID(),BeerDTO.builder().build()));
     }
 }
