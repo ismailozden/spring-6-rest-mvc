@@ -52,7 +52,7 @@ class BeerControllerIntegrationTests {
     @Test
     void testListBeers() {
         List<BeerDTO> dtos = beerController.listBeers();
-        Assertions.assertEquals(dtos.size(),3);
+        Assertions.assertEquals(dtos.size(),2413);
     }
 
     @Rollback
