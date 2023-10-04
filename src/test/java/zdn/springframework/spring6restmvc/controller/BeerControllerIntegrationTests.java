@@ -23,6 +23,7 @@ import zdn.springframework.spring6restmvc.repositories.BeerRepository;
 import java.util.*;
 
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,7 +52,7 @@ class BeerControllerIntegrationTests {
 
     @Test
     void testListBeers() {
-        List<BeerDTO> dtos = beerController.listBeers();
+        List<BeerDTO> dtos = beerController.listBeers(null);
         Assertions.assertEquals(dtos.size(),2413);
     }
 
@@ -60,7 +61,7 @@ class BeerControllerIntegrationTests {
     @Test
     void testEmptyList() {
 beerRepository.deleteAll();
-        List<BeerDTO> dtos = beerController.listBeers();
+        List<BeerDTO> dtos = beerController.listBeers(null);
 Assertions.assertEquals(dtos.size(),0);
     }
 
@@ -190,4 +191,13 @@ Assertions.assertEquals(dtos.size(),0);
         System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
+    @Test
+    void testListBeerByName() throws Exception {
+
+        mockMvc.perform(get(BEER_PATH)
+                .queryParam("beerName","IPA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(100)));
+
+    }
 }

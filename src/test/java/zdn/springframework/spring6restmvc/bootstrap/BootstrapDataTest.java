@@ -36,7 +36,7 @@ class BootstrapDataTest {
     @Test
     void run() {
         BeerServiceImpl beerService = new BeerServiceImpl();
-        System.out.println(beerService.listBeers());
+        System.out.println(beerService.listBeers(null));
 
         CustomerServiceImpl customerService = new CustomerServiceImpl();
         System.out.println(customerService.listCustomers());
