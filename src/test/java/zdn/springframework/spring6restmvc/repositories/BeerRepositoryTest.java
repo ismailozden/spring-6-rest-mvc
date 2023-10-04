@@ -5,12 +5,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import zdn.springframework.spring6restmvc.bootstrap.BootstrapData;
 import zdn.springframework.spring6restmvc.entities.Beer;
 import zdn.springframework.spring6restmvc.model.BeerStyle;
+import zdn.springframework.spring6restmvc.services.BeerCsvServiceImpl;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @DataJpaTest
+@Import({BootstrapData.class, BeerCsvServiceImpl.class})
 class BeerRepositoryTest {
 
     @Autowired
@@ -46,7 +51,11 @@ class BeerRepositoryTest {
 
         beerRepository.flush();
         });
+    }
 
-
+    @Test
+    void testGetBeerListByName() {
+        List<Beer> list = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%");
+        Assertions.assertEquals(list.size(),336);
     }
 }
