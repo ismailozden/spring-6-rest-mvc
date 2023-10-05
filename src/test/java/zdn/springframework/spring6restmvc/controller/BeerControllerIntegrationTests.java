@@ -54,7 +54,7 @@ class BeerControllerIntegrationTests {
 
     @Test
     void testListBeers() {
-        List<BeerDTO> dtos = beerController.listBeers(null, null, false);
+        List<BeerDTO> dtos = beerController.listBeers(null, null, false, 1, 25);
         Assertions.assertEquals(dtos.size(),2413);
     }
 
@@ -63,7 +63,7 @@ class BeerControllerIntegrationTests {
     @Test
     void testEmptyList() {
 beerRepository.deleteAll();
-        List<BeerDTO> dtos = beerController.listBeers(null,null, false);
+        List<BeerDTO> dtos = beerController.listBeers(null,null, false, 1, 25);
 Assertions.assertEquals(dtos.size(),0);
     }
 
@@ -244,4 +244,16 @@ Assertions.assertEquals(dtos.size(),0);
                 .andExpect(jsonPath("$.size()", is(310)));
     }
 
+    @Test
+    void tesListBeersByStyleAndNameShowInventoryTruePage2() throws Exception {
+        mockMvc.perform(get(BEER_PATH)
+                        .queryParam("beerName", "IPA")
+                        .queryParam("beerStyle", BeerStyle.IPA.name())
+                        .queryParam("showInventory", "true")
+                        .queryParam("pageNumber", "2")
+                        .queryParam("pageSize", "50"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(50)))
+                .andExpect(jsonPath("$.[0].quantityOnHand").value(IsNull.notNullValue()));
+    }
 }
