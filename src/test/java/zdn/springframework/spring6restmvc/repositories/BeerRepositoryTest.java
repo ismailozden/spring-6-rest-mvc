@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import zdn.springframework.spring6restmvc.bootstrap.BootstrapData;
 import zdn.springframework.spring6restmvc.entities.Beer;
 import zdn.springframework.spring6restmvc.model.BeerStyle;
@@ -55,7 +56,7 @@ class BeerRepositoryTest {
 
     @Test
     void testGetBeerListByName() {
-        List<Beer> list = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%");
-        Assertions.assertEquals(list.size(),336);
+        Page<Beer> list = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%", null);
+        Assertions.assertEquals(list.getContent().size(),336);
     }
 }

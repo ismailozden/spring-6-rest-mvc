@@ -2,6 +2,7 @@ package zdn.springframework.spring6restmvc.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,6 @@ import zdn.springframework.spring6restmvc.model.BeerDTO;
 import zdn.springframework.spring6restmvc.model.BeerStyle;
 import zdn.springframework.spring6restmvc.services.BeerService;
 
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -35,12 +35,12 @@ public class BeerController {
     }
 
     @GetMapping(BEER_PATH)
-    public List<BeerDTO> listBeers(@RequestParam(required = false) String beerName,
+    public Page<BeerDTO> listBeers(@RequestParam(required = false) String beerName,
                                    @RequestParam(required = false) BeerStyle beerStyle,
                                    @RequestParam(required = false) Boolean showInventory,
                                    @RequestParam(required = false) Integer pageNumber,
                                    @RequestParam(required = false) Integer pageSize){
-        return beerService.listBeers(beerName, beerStyle, showInventory, 1, 25);
+        return beerService.listBeers(beerName, beerStyle, showInventory, pageNumber, pageSize);
     }
 
     @RequestMapping(value = BEER_PATH_ID, method = RequestMethod.GET)
