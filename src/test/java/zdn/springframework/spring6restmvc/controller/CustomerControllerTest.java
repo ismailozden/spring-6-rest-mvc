@@ -8,8 +8,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import zdn.springframework.spring6restmvc.config.SpringSecurityConfig;
 import zdn.springframework.spring6restmvc.model.CustomerDTO;
 import zdn.springframework.spring6restmvc.services.CustomerService;
 import zdn.springframework.spring6restmvc.services.CustomerServiceImpl;
@@ -23,10 +25,12 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CustomerController.class)
+@Import(SpringSecurityConfig.class)
 class CustomerControllerTest {
 
     private static final String CUSTOMER_PATH = "/api/v1/customer";
@@ -56,6 +60,7 @@ class CustomerControllerTest {
     void testListCustomers() throws Exception {
         given(customerService.listCustomers()).willReturn(customerServiceImpl.listCustomers());
         mockMvc.perform(get(CUSTOMER_PATH)
+                        .with(httpBasic("zdn","password"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -68,6 +73,7 @@ class CustomerControllerTest {
 
         given(customerService.getCustomerByID(testCustomer.getId())).willReturn(Optional.of(testCustomer));
         mockMvc.perform(get(CUSTOMER_PATH_ID, testCustomer.getId())
+                        .with(httpBasic("zdn","password"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -85,6 +91,7 @@ class CustomerControllerTest {
         given(customerService.saveNewCustomer(any(CustomerDTO.class))).willReturn(customerServiceImpl.listCustomers().get(1));
 
         mockMvc.perform(post(CUSTOMER_PATH)
+                        .with(httpBasic("zdn","password"))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customer)))
