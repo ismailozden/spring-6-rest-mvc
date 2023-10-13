@@ -26,10 +26,14 @@ import zdn.springframework.spring6restmvc.repositories.BeerRepository;
 import java.util.*;
 
 import static org.hamcrest.Matchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static zdn.springframework.spring6restmvc.controller.CustomerControllerTest.PASSWORD;
+import static zdn.springframework.spring6restmvc.controller.CustomerControllerTest.USERNAME;
 
 @SpringBootTest
 class BeerControllerIntegrationTests {
@@ -50,7 +54,8 @@ class BeerControllerIntegrationTests {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac)
+                .apply(springSecurity()).build();
     }
 
     @Test
@@ -185,6 +190,7 @@ Assertions.assertEquals(dtos.getContent().size(),0);
         beerMap.put("beerName", "876bzfbfgtuttuzit6766765675v567567cc67654647c47c464c64c45");
 
        MvcResult mvcResult = mockMvc.perform(patch(BEER_PATH_ID, beer.getId())
+                       .with(httpBasic(USERNAME,PASSWORD))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(beerMap)))
@@ -198,6 +204,7 @@ Assertions.assertEquals(dtos.getContent().size(),0);
     void testListBeerByName() throws Exception {
 
         mockMvc.perform(get(BEER_PATH)
+                        .with(httpBasic(USERNAME,PASSWORD))
                 .queryParam("beerName","IPA")
                         .queryParam("pageSize","336"))
                 .andExpect(status().isOk())
@@ -209,6 +216,7 @@ Assertions.assertEquals(dtos.getContent().size(),0);
     void testListBeerByStyle() throws Exception {
 
         mockMvc.perform(get(BEER_PATH)
+                        .with(httpBasic(USERNAME,PASSWORD))
                         .queryParam("beerStyle", BeerStyle.IPA.name())
                         .queryParam("pageSize","548"))
                 .andExpect(status().isOk())
@@ -219,6 +227,7 @@ Assertions.assertEquals(dtos.getContent().size(),0);
     @Test
     void tesListBeersByStyleAndNameShowInventoryTrue() throws Exception {
         mockMvc.perform(get(BEER_PATH)
+                        .with(httpBasic(USERNAME,PASSWORD))
                         .queryParam("beerName", "IPA")
                         .queryParam("beerStyle", BeerStyle.IPA.name())
                         .queryParam("showInventory", "true")
@@ -231,6 +240,7 @@ Assertions.assertEquals(dtos.getContent().size(),0);
     @Test
     void tesListBeersByStyleAndNameShowInventoryFalse() throws Exception {
         mockMvc.perform(get(BEER_PATH)
+                        .with(httpBasic(USERNAME,PASSWORD))
                         .queryParam("beerName", "IPA")
                         .queryParam("beerStyle", BeerStyle.IPA.name())
                         .queryParam("showInventory", "false")
@@ -243,6 +253,7 @@ Assertions.assertEquals(dtos.getContent().size(),0);
     @Test
     void tesListBeersByStyleAndName() throws Exception {
         mockMvc.perform(get(BEER_PATH)
+                        .with(httpBasic(USERNAME,PASSWORD))
                         .queryParam("beerName", "IPA")
                         .queryParam("beerStyle", BeerStyle.IPA.name())
                         .queryParam("pageSize", "1800"))
@@ -253,6 +264,7 @@ Assertions.assertEquals(dtos.getContent().size(),0);
     @Test
     void tesListBeersByStyleAndNameShowInventoryTruePage2() throws Exception {
         mockMvc.perform(get(BEER_PATH)
+                        .with(httpBasic(USERNAME,PASSWORD))
                         .queryParam("beerName", "IPA")
                         .queryParam("beerStyle", BeerStyle.IPA.name())
                         .queryParam("showInventory", "true")
