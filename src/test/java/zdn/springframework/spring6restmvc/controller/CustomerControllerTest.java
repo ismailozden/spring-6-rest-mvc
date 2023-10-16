@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -95,6 +96,7 @@ class CustomerControllerTest {
 
         mockMvc.perform(post(CUSTOMER_PATH)
                         .with(httpBasic(USERNAME,PASSWORD))
+                        .with(csrf())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customer)))
@@ -110,6 +112,7 @@ class CustomerControllerTest {
 
         mockMvc.perform(put(CUSTOMER_PATH_ID, customer.getId())
                         .with(httpBasic(USERNAME,PASSWORD))
+                        .with(csrf())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customer)))
@@ -126,6 +129,7 @@ class CustomerControllerTest {
 
         mockMvc.perform(delete(CUSTOMER_PATH_ID, customer.getId())
                         .with(httpBasic(USERNAME,PASSWORD))
+                        .with(csrf())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -144,6 +148,7 @@ class CustomerControllerTest {
 
         mockMvc.perform(patch(CUSTOMER_PATH_ID, customer.getId())
                         .with(httpBasic(USERNAME,PASSWORD))
+                        .with(csrf())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customerMap)))
