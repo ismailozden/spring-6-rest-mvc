@@ -15,7 +15,9 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
             authorizationManagerRequestMatcherRegistry.anyRequest().authenticated();
                 })
-                .httpBasic(Customizer.withDefaults());
+                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
+                    httpSecurityOAuth2ResourceServerConfigurer.jwt(Customizer.withDefaults());
+                });
         return httpSecurity.build();
 
     }
